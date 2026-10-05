@@ -4,8 +4,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "COIL Apurimac-Galicia",
-  description: "Blog y sitio de contenido del proyecto COIL Apurimac-Galicia",
+  title: "Apurímac Inmersivo · CamiñAndes UNAMBA × USC",
+  description:
+    "Mapa interactivo cultural de Apurímac: arqueología chanka e inca, paisajes sagrados, huatia y mitos andinos. Proyecto CamiñAndes.",
 };
 
 export default function RootLayout({
