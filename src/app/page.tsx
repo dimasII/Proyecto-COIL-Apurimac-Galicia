@@ -6,7 +6,6 @@
  */
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import type mapboxgl from "mapbox-gl";
 import {
   ArrowRight,
@@ -15,14 +14,12 @@ import {
   Landmark,
   List,
   Map as MapIcon,
-  MapPin,
   Mountain,
   Play,
-  Route,
-  Sparkles,
   Square,
   Users,
 } from "lucide-react";
+import HeroCinematic from "@/components/HeroCinematic";
 import { POIS, RUTA_CULTURAL } from "@/data/apurimacData";
 import { flyToPoi } from "@/components/Map/ApurimacMap";
 import FilterBar from "@/components/UI/FilterBar";
@@ -36,9 +33,9 @@ import type { FiltrosMapa, POI } from "@/types";
 const ApurimacMap = dynamic(() => import("@/components/Map/ApurimacMap"), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#1a1207] p-6" role="status" aria-label="Cargando el mapa">
-      <Mountain className="h-10 w-10 animate-pulse text-amber-400" aria-hidden="true" />
-      <p className="text-sm font-medium text-amber-100">Cargando los Andes apurimeños…</p>
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#0c141f] p-6" role="status" aria-label="Cargando el mapa">
+      <Mountain className="h-10 w-10 animate-pulse text-sky-400" aria-hidden="true" />
+      <p className="text-sm font-medium text-slate-300">Cargando los Andes apurimeños…</p>
       <div className="w-56" aria-hidden="true">
         <div className="skeleton h-2 rounded-full" />
         <div className="skeleton mt-2 h-2 w-2/3 rounded-full" />
@@ -150,76 +147,35 @@ export default function Home() {
   const provinciasUnicas = new Set(POIS.map((p) => p.provincia)).size;
 
   return (
-    <div className="bg-[#0f0a04] text-amber-50">
-      {/* ═══ HERO EDITORIAL ═══ */}
-      <section id="inicio" aria-labelledby="titulo-hero" className="relative scroll-mt-16 overflow-hidden">
-        <div className="absolute inset-0" aria-hidden="true">
-          <Image
-            src="https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=2000&auto=format&fit=crop"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-[#1a1207]/70 to-[#0f0a04]" aria-hidden="true" />
-        <div className="textil-andino absolute inset-x-0 top-0 h-1.5" aria-hidden="true" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-14 md:pb-16 md:pt-20">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-black/40 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-200 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            CamiñAndes · UNAMBA × USC
-          </p>
-          <h1 id="titulo-hero" className="max-w-3xl font-display text-4xl font-black leading-[1.05] md:text-6xl">
-            Apurímac
-            <span className="block bg-gradient-to-r from-amber-200 via-amber-400 to-terracota-400 bg-clip-text text-transparent">
-              Inmersivo
-            </span>
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-amber-100/90 md:text-lg">
-            Un atlas vivo: mapa cultural, fichas con historia, sabores y leyendas, y una ruta de 7 paradas entre Saywite y Sóndor.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            <button
-              type="button"
-              onClick={() => scrollA("explorar")}
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-stone-900 shadow-xl shadow-amber-500/25 btn-transition hover:bg-amber-300"
-            >
-              <MapPin className="h-4 w-4" aria-hidden="true" />
-              Explorar el mapa
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollA("ruta-cultural")}
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-full border border-amber-300/40 bg-white/10 px-6 py-3 text-sm font-bold text-amber-100 backdrop-blur btn-transition hover:bg-white/20"
-            >
-              <Route className="h-4 w-4" aria-hidden="true" />
-              Ver la Ruta Cultural
-            </button>
-          </div>
-          <dl className="mt-8 grid max-w-2xl grid-cols-3 gap-2.5" aria-label="Cifras del proyecto">
-            {[
-              { n: `${POIS.length}`, l: "Lugares por descubrir" },
-              { n: `${provinciasUnicas}`, l: "Provincias representadas" },
-              { n: `${RUTA_CULTURAL.length}`, l: "Paradas en la Ruta" },
-            ].map((s) => (
-              <div key={s.l} className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center backdrop-blur">
-                <dt className="order-2 mt-1 block text-[11px] uppercase tracking-wider text-amber-100/70">{s.l}</dt>
-                <dd className="order-1 text-xl font-black text-amber-300 md:text-2xl">{s.n}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
+    <div className="bg-[#05090e] text-slate-50">
+      <div id="inicio" className="scroll-mt-16">
+        <HeroCinematic />
+      </div>
+
+      {/* Cifras del proyecto sobre el video */}
+      <section aria-label="Cifras del proyecto" className="relative z-10 mx-auto -mt-10 max-w-6xl px-4">
+        <dl className="grid grid-cols-3 gap-2.5" aria-label="Cifras del proyecto">
+          {[
+            { n: `${POIS.length}`, l: "Lugares por descubrir" },
+            { n: `${provinciasUnicas}`, l: "Provincias representadas" },
+            { n: `${RUTA_CULTURAL.length}`, l: "Paradas en la Ruta" },
+          ].map((s) => (
+            <div key={s.l} className="glass-card rounded-2xl p-3 text-center">
+              <dt className="order-2 mt-1 block text-[11px] uppercase tracking-wider text-slate-400">{s.l}</dt>
+              <dd className="order-1 font-display text-xl font-black text-white md:text-2xl">{s.n}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       {/* ═══ ATLAS: MAPA + LISTA ═══ */}
-      <section id="explorar" aria-labelledby="titulo-explorar" className="relative scroll-mt-16">
+      <section id="explorar" aria-labelledby="titulo-explorar" className="relative z-10 scroll-mt-16">
         <div className="mx-auto max-w-6xl px-4 pb-4 pt-10">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300/80">Atlas interactivo</p>
-          <h2 id="titulo-explorar" className="mt-1 font-display text-2xl font-black md:text-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-400">Atlas interactivo</p>
+          <h2 id="titulo-explorar" className="mt-1 font-display text-2xl font-black uppercase text-white md:text-3xl">
             Mapa y lugares, juntos
           </h2>
-          <p className="mt-1 max-w-2xl text-[15px] text-amber-100/75">
+          <p className="mt-1 max-w-2xl text-[15px] font-light text-slate-400">
             Elige un punto en el mapa para resaltar su tarjeta, o usa el botón de navegación de una tarjeta para centrar el mapa.
             Los puntos cercanos se agrupan con un número: tócalos para acercar.
           </p>
@@ -229,7 +185,7 @@ export default function Home() {
           <FilterBar filtros={filtros} onChange={setFiltros} totalVisibles={visibles.length} totalPOIs={POIS.length} />
 
           {/* Alternador móvil Mapa / Lista */}
-          <div className="mt-3 flex rounded-2xl border border-white/10 bg-black/40 p-1 lg:hidden" role="tablist" aria-label="Alternar entre mapa y lista">
+          <div className="glass-card mt-3 flex rounded-2xl p-1 lg:hidden" role="tablist" aria-label="Alternar entre mapa y lista">
             {(
               [
                 { id: "mapa", etiqueta: "Mapa", icono: <MapIcon className="h-4 w-4" aria-hidden="true" /> },
@@ -243,7 +199,7 @@ export default function Home() {
                 aria-selected={vista === t.id}
                 onClick={() => setVista(t.id)}
                 className={`inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl text-sm font-bold btn-transition ${
-                  vista === t.id ? "bg-amber-400 text-stone-900" : "text-amber-100/80 hover:bg-white/10"
+                  vista === t.id ? "bg-white text-[#0c141f] shadow" : "text-slate-300 hover:bg-white/10"
                 }`}
               >
                 {t.icono}
@@ -257,7 +213,7 @@ export default function Home() {
             <div className={`${vista === "lista" ? "block" : "hidden"} lg:block`}>
               <div
                 id="lugares"
-                className="apurimac-scroll max-h-[70vh] scroll-mt-24 space-y-3 overflow-y-auto rounded-2xl border border-white/10 bg-black/30 p-3 lg:max-h-[78vh]"
+                className="apurimac-scroll max-h-[70vh] scroll-mt-24 space-y-3 overflow-y-auto rounded-2xl border border-white/10 bg-[#0c141f]/60 p-3 backdrop-blur-md lg:max-h-[78vh]"
                 role="region"
                 aria-label={`Lista de lugares (${visibles.length} resultados)`}
                 aria-live="polite"
@@ -266,7 +222,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={volverInicio}
-                    className="inline-flex min-h-[40px] items-center rounded-full border border-white/15 bg-[#1a1207]/85 px-3.5 py-1.5 text-xs font-semibold text-amber-100 btn-transition hover:bg-[#1a1207]"
+                    className="inline-flex min-h-[40px] items-center rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 btn-transition hover:bg-white/10"
                   >
                     ⟲ Ver todo Apurímac
                   </button>
@@ -274,7 +230,7 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={iniciarTour}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-amber-400 px-3.5 py-1.5 text-xs font-bold text-stone-900 btn-transition hover:bg-amber-300"
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 px-3.5 py-1.5 text-xs font-bold text-white btn-transition hover:from-sky-600 hover:to-emerald-600"
                     >
                       <Play className="h-3.5 w-3.5" aria-hidden="true" /> Ruta Cultural
                     </button>
@@ -311,7 +267,7 @@ export default function Home() {
                   ))
                 )}
               </div>
-              <p className="mt-2 text-xs text-amber-100/50">
+              <p className="mt-2 text-xs text-slate-500">
                 Leyenda: los colores identifican Arqueología · Naturaleza · Gastronomía · Mitos y tradiciones. El nombre aparece al seleccionar un punto.
               </p>
             </div>
@@ -337,21 +293,21 @@ export default function Home() {
                       onVerEnMapa={() => selected && flyToPoi(mapRef.current, selected)}
                     />
                     {tourIndex !== null && (
-                      <div className="mt-2 flex items-center justify-between rounded-2xl border border-amber-300/30 bg-[#1a1207]/90 p-2.5 backdrop-blur">
+                      <div className="glass-card mt-2 flex items-center justify-between rounded-2xl p-2.5">
                         <button
                           type="button"
                           onClick={() => pasoTour(-1)}
-                          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold btn-transition hover:bg-white/20"
+                          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white btn-transition hover:bg-white/20"
                         >
                           ← Anterior
                         </button>
-                        <span className="text-xs font-bold text-amber-300" role="status">
+                        <span className="text-xs font-bold text-sky-300" role="status">
                           {tourIndex + 1} / {RUTA_CULTURAL.length}
                         </span>
                         <button
                           type="button"
                           onClick={() => pasoTour(1)}
-                          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-amber-400 px-3 py-2 text-xs font-bold text-stone-900 btn-transition hover:bg-amber-300"
+                          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-gradient-to-r from-sky-500 to-emerald-500 px-3 py-2 text-xs font-bold text-white btn-transition hover:from-sky-600 hover:to-emerald-600"
                         >
                           Siguiente →
                         </button>
@@ -361,7 +317,7 @@ export default function Home() {
                 )}
 
                 {!selected && (
-                  <p className="absolute bottom-3 left-1/2 z-10 w-max max-w-[94vw] -translate-x-1/2 rounded-full border border-white/15 bg-black/65 px-4 py-2 text-xs text-amber-100/90 backdrop-blur" role="status">
+                  <p className="absolute bottom-3 left-1/2 z-10 w-max max-w-[94vw] -translate-x-1/2 rounded-full border border-white/10 bg-[#0c141f]/70 px-4 py-2 text-xs text-slate-200 backdrop-blur" role="status">
                     {visibles.length} lugares · elige un punto para ver su ficha
                   </p>
                 )}
@@ -372,13 +328,13 @@ export default function Home() {
       </section>
 
       {/* ═══ RUTA CULTURAL ═══ */}
-      <section id="ruta-cultural" aria-labelledby="titulo-ruta" className="scroll-mt-16 border-t border-white/10 bg-black/30">
+      <section id="ruta-cultural" aria-labelledby="titulo-ruta" className="relative z-10 scroll-mt-16 border-t border-white/5 bg-[#0c141f]/30">
         <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300/80">Experiencia guiada · 7 paradas</p>
-          <h2 id="titulo-ruta" className="mt-1 font-display text-2xl font-black md:text-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-400">Experiencia guiada · 7 paradas</p>
+          <h2 id="titulo-ruta" className="mt-1 font-display text-2xl font-black uppercase text-white md:text-3xl">
             Tu recorrido por Apurímac
           </h2>
-          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-amber-100/75">
+          <p className="mt-2 max-w-2xl text-[15px] font-light leading-relaxed text-slate-400">
             Del monolito de Saywite a la pirámide de Sóndor, pasando por la huatia, las termas y el cañón:
             una narrativa que une agua, tierra y memoria quechua. Marca tu progreso parada por parada.
           </p>
@@ -389,26 +345,26 @@ export default function Home() {
       </section>
 
       {/* ═══ ACERCA / AYUDA ═══ */}
-      <section aria-labelledby="titulo-acerca" className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+      <section aria-labelledby="titulo-acerca" className="relative z-10 mx-auto max-w-6xl px-4 py-12 md:py-16">
         <div className="grid gap-4 md:grid-cols-3">
           {[
             { icon: <BookOpenText className="h-5 w-5" aria-hidden="true" />, t: "Para docentes", d: "Cada lugar reúne historia, gastronomía y leyenda con etiquetas y altitudes. Úsalo como aula viva: pide a tus estudiantes comparar dos paradas de la Ruta." },
             { icon: <Users className="h-5 w-5" aria-hidden="true" />, t: "Para estudiantes", d: "Empieza por Explorar el mapa, abre un lugar y sigue con Siguiente. Anota tres palabras en quechua que descubras en el recorrido." },
             { icon: <Compass className="h-5 w-5" aria-hidden="true" />, t: "Para viajeras", d: "Filtra por Naturaleza o Gastronomía, revisa distrito y altitud, y arma tu itinerario con las 7 paradas de la Ruta Cultural." },
           ].map((c) => (
-            <div key={c.t} className="rounded-2xl border border-white/10 bg-white/[.04] p-5">
-              <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-xl bg-amber-400/15 text-amber-300">{c.icon}</span>
+            <div key={c.t} className="glass-card rounded-2xl p-5">
+              <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400">{c.icon}</span>
               <h3 id={c.t === "Para docentes" ? "titulo-acerca" : undefined} className="mt-3 text-base font-extrabold text-white">{c.t}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-amber-100/75">{c.d}</p>
+              <p className="mt-1.5 text-sm font-light leading-relaxed text-slate-400">{c.d}</p>
             </div>
           ))}
         </div>
         <p className="mt-6 text-center">
-          <a href="/about" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-200 hover:underline hover:underline-offset-4">
+          <a href="/about" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-bold text-sky-300 hover:text-sky-200 hover:underline hover:underline-offset-4">
             Conoce más del proyecto CamiñAndes <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </a>
         </p>
-        <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-amber-100/50">
+        <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-slate-500">
           <Landmark className="h-3.5 w-3.5" aria-hidden="true" />
           Museo digital y guía de exploración · UNAMBA × USC
         </p>

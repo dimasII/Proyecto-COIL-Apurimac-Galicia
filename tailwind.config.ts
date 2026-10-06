@@ -9,6 +9,34 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        aetheris: {
+          950: "#05090e",
+          900: "#0c141f",
+          800: "#03060a",
+        },
+        crema: {
+          50: "#fffbf2",
+          100: "#fef6e4",
+          200: "#f8ead0",
+          300: "#efdab4",
+        },
+        valle: {
+          50: "#eef7f0",
+          100: "#d7ecdd",
+          500: "#1f7a4d",
+          600: "#166539",
+          700: "#124f2e",
+        },
+        laguna: {
+          100: "#dff2f9",
+          500: "#0e7aa5",
+          600: "#0b6488",
+        },
+        maiz: {
+          300: "#fcd34d",
+          400: "#fbbf24",
+          500: "#f59e0b",
+        },
         andes: {
           50: "#faf7f0",
           100: "#f3ecdd",
@@ -52,8 +80,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["'Fraunces'", "Georgia", "'Times New Roman'", "serif"],
-        sans: ["'Inter'", "system-ui", "-apple-system", "'Segoe UI'", "sans-serif"],
+        display: ["'Syne'", "'Fraunces'", "Georgia", "serif"],
+        sans: ["'Plus Jakarta Sans'", "'Inter'", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(26,18,7,.08), 0 8px 24px -12px rgba(26,18,7,.25)",
@@ -68,6 +96,12 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        leafFall: {
+          "0%": { transform: "translateY(-10vh) translateX(-5vw) rotate(0deg) scale(0.5)", opacity: "0" },
+          "10%": { opacity: "0.8" },
+          "90%": { opacity: "0.8" },
+          "100%": { transform: "translateY(110vh) translateX(25vw) rotate(720deg) scale(1)", opacity: "0" },
+        },
         shimmer: {
           "0%": { backgroundPosition: "-400px 0" },
           "100%": { backgroundPosition: "400px 0" },
@@ -75,6 +109,8 @@ const config: Config = {
       },
       animation: {
         "fade-up": "fade-up .45s ease both",
+        "leaf-fall-slow": "leafFall 12s linear infinite",
+        "leaf-fall-fast": "leafFall 7s linear infinite",
         shimmer: "shimmer 1.4s linear infinite",
       },
     },

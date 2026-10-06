@@ -24,10 +24,10 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
       ref={ref as React.Ref<HTMLElement>}
       id={`tarjeta-${poi.id}`}
       aria-current={activo ? "true" : undefined}
-      className={`group flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border bg-[#171006] card-lift ${
+      className={`group flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border glass-card card-lift ${
         activo
-          ? "border-amber-400 shadow-[0_0_0_2px_#fbbf24,0_16px_40px_-16px_rgba(251,191,36,.45)]"
-          : "border-white/10 hover:border-amber-300/35"
+          ? "border-sky-400 shadow-[0_0_0_2px_#38bdf8,0_25px_50px_-12px_rgba(56,189,248,.45)]"
+          : "hover:border-sky-400/20"
       }`}
       style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
     >
@@ -42,19 +42,19 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" aria-hidden="true" />
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-stone-800 shadow-sm backdrop-blur">
             <span className="h-2 w-2 rounded-full" style={{ background: meta.color }} aria-hidden="true" />
             {meta.etiqueta}
           </span>
           {poi.esEmblematico && (
-            <span className="rounded-full bg-amber-400 px-2.5 py-1 text-[11px] font-bold text-stone-900">
+            <span className="rounded-full bg-terracota-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
               Ruta Cultural
             </span>
           )}
         </div>
         <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-[17px] font-extrabold leading-snug text-white">{poi.nombre}</h3>
-          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-amber-200">
+          <h3 className="text-[17px] font-extrabold leading-snug text-white drop-shadow-md">{poi.nombre}</h3>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-white drop-shadow">
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-3 w-3" aria-hidden="true" />
               {poi.distrito} · {poi.provincia}
@@ -67,9 +67,9 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
         </div>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="line-clamp-2 text-sm leading-relaxed text-amber-50/85">{poi.descripcionCorta}</p>
-        <p className="mt-2 truncate text-xs text-amber-100/60">
-          Sabor local: <span className="font-semibold text-amber-100/85">{poi.gastronomiaLocal[0]?.nombre ?? "Tradición viva"}</span>
+        <p className="line-clamp-2 text-sm font-light leading-relaxed text-slate-400">{poi.descripcionCorta}</p>
+        <p className="mt-2 truncate text-xs text-slate-500">
+          Sabor local: <span className="font-semibold text-slate-300">{poi.gastronomiaLocal[0]?.nombre ?? "Tradición viva"}</span>
         </p>
         <div className="mt-3 flex items-center gap-2">
           <button
@@ -77,7 +77,7 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
             onClick={() => onSelect(poi)}
             aria-pressed={activo}
             aria-label={`Abrir ficha de ${poi.nombre}`}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-400 px-3 py-2 text-sm font-bold text-stone-900 btn-transition hover:bg-amber-300"
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-bold text-[#0c141f] btn-transition hover:bg-sky-400 hover:text-white"
           >
             Abrir ficha
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -87,7 +87,7 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
             onClick={() => onFocusMap(poi)}
             aria-label={`Centrar el mapa en ${poi.nombre}`}
             title={`Centrar el mapa en ${poi.nombre}`}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-amber-300/40 px-3 py-2 text-amber-200 btn-transition hover:bg-white/10"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-slate-200 btn-transition hover:bg-white/10"
           >
             <Navigation className="h-4 w-4" aria-hidden="true" />
           </button>

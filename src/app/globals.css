@@ -4,14 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ══ CamiñAndes · Design tokens ══ */
+/* ══ CamiñAndes × Aetheris · tokens cinematográficos oscuros ══ */
 :root {
-  --andes-bg: #0f0a04;
-  --andes-panel: #1a1207;
-  --andes-cream: #faf7f0;
-  --andes-gold: #fbbf24;
+  --andes-bg: #05090e;
+  --andes-panel: #0c141f;
+  --andes-cream: #fffbf2;
+  --andes-ink: #f8fafc;
+  --andes-gold: #f59e0b;
   --andes-terra: #c65a32;
-  --focus-ring: #fcd34d;
+  --andes-valle: #34d399;
+  --andes-laguna: #38bdf8;
+  --focus-ring: #38bdf8;
   --dur: 220ms;
 }
 
@@ -22,6 +25,8 @@ html {
 body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  background: var(--andes-bg);
+  color: var(--andes-ink);
 }
 
 /* Focus visible global — WCAG 2.2 AA */
@@ -37,8 +42,8 @@ body {
   left: 1rem;
   top: -100px;
   z-index: 100;
-  background: #fbbf24;
-  color: #1a1207;
+  background: #1f7a4d;
+  color: #fff;
   font-weight: 800;
   padding: 0.6rem 1rem;
   border-radius: 9999px;
@@ -48,15 +53,15 @@ body {
   top: 0.75rem;
 }
 
-/* ── Detalle textil andino (acento sobrio, sin recargar) ── */
+/* ── Detalle textil andino (vivo, conserva identidad) ── */
 .textil-andino {
   background: repeating-linear-gradient(
     90deg,
-    #fbbf24 0 14px,
+    #f59e0b 0 14px,
     #c65a32 14px 22px,
-    #1a1207 22px 26px,
-    #7c2d12 26px 30px,
-    #fbbf24 30px 44px
+    #1f7a4d 22px 26px,
+    #0e7aa5 26px 30px,
+    #f59e0b 30px 44px
   );
 }
 
@@ -112,9 +117,9 @@ body {
 .apurimac-marker-label {
   font-size: 11px;
   font-weight: 700;
-  color: #fff;
-  background: rgba(26,18,7,.9);
-  border: 1px solid rgba(255,255,255,.18);
+  color: #2b1d0e;
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(43,29,14,.15);
   padding: 2px 8px;
   border-radius: 9999px;
   white-space: nowrap;
@@ -135,28 +140,56 @@ body {
 
 /* Scroll fino */
 .apurimac-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-.apurimac-scroll::-webkit-scrollbar-track { background: transparent; }
-.apurimac-scroll::-webkit-scrollbar-thumb { background: rgba(251,191,36,.3); border-radius: 8px; }
-.apurimac-scroll::-webkit-scrollbar-thumb:hover { background: rgba(251,191,36,.5); }
+.apurimac-scroll::-webkit-scrollbar-track { background: #05090e; }
+.apurimac-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
+.apurimac-scroll::-webkit-scrollbar-thumb:hover { background: #334155; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
 
-/* Mapbox controles noche andina */
+/* Mapbox controles oscuros Aetheris */
 .mapboxgl-ctrl-group {
-  background: rgba(26,18,7,.92) !important;
-  border: 1px solid rgba(255,255,255,.15) !important;
+  background: rgba(12,20,31,.92) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
   backdrop-filter: blur(8px);
 }
 .mapboxgl-ctrl-group button span { filter: invert(.9) sepia(.4) saturate(3) hue-rotate(-15deg); }
 .mapboxgl-ctrl-attrib { background: rgba(0,0,0,.55) !important; font-size: 10px !important; }
-.mapboxgl-ctrl-attrib a { color: #fcd34d !important; }
+.mapboxgl-ctrl-attrib a { color: #7dd3fc !important; }
 
-/* Skeleton shimmer */
+/* Skeleton shimmer oscuro */
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.14) 37%, rgba(255,255,255,.06) 63%);
   background-size: 800px 100%;
   animation: shimmer 1.4s linear infinite;
 }
+
+/* ══ Aetheris cinematográfico ══ */
+.cinematic-vignette {
+  background: radial-gradient(circle at 50% 50%, transparent 10%, rgba(5,9,14,.3) 50%, #05090e 95%);
+}
+.glass-card {
+  background: rgba(12,20,31,.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.06);
+}
+.glass-card:hover {
+  border-color: rgba(56,189,248,.2);
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
+}
+.text-gradient-sun {
+  background: linear-gradient(135deg, #fff 30%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.leaf-particle { position: absolute; pointer-events: none; z-index: 1; }
+.reveal-up {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 1.2s cubic-bezier(.16,1,.3,1), transform 1.2s cubic-bezier(.16,1,.3,1);
+}
+.reveal-up.active { opacity: 1; transform: translateY(0); }
 
 /* Animación de entrada progresiva para cards */
 .reveal { animation: fade-up .5s ease both; }

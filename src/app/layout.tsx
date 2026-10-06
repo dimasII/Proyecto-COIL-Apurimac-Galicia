@@ -35,6 +35,10 @@ export const metadata: Metadata = {
       "Mapa interactivo y ruta cultural de Apurímac: arqueología, naturaleza, gastronomía y mitos.",
   },
   robots: { index: true, follow: true },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -44,7 +48,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className="flex min-h-screen flex-col bg-[#0f0a04] font-sans text-amber-50 antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="flex min-h-screen flex-col bg-[#05090e] font-sans text-slate-50 antialiased selection:bg-sky-500 selection:text-white">
         <a href="#contenido" className="skip-link">
           Saltar al contenido principal
         </a>

@@ -87,17 +87,17 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
         clusterRadius: 48,
       });
 
-      // Grupo: círculo dorado sobrio con borde noche.
+      // Grupo: círculo maíz vivo con borde blanco (luminoso).
       map.addLayer({
         id: L_CLUSTER,
         type: "circle",
         source: SOURCE_ID,
         filter: ["has", "point_count"],
         paint: {
-          "circle-color": "#fbbf24",
+          "circle-color": "#f59e0b",
           "circle-radius": ["step", ["get", "point_count"], 20, 4, 26, 8, 32],
           "circle-stroke-width": 3,
-          "circle-stroke-color": "#1a1207",
+          "circle-stroke-color": "#ffffff",
         },
       });
       map.addLayer({
@@ -110,10 +110,10 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
           "text-size": 13,
           "text-font": ["DIN Pro Medium", "Arial Unicode MS Bold"],
         },
-        paint: { "text-color": "#1a1207" },
+        paint: { "text-color": "#2b1d0e" },
       });
 
-      // Punto individual: color por categoría + forma sobria (borde). Sin etiqueta.
+      // Punto individual: color por categoría + borde blanco. Sin etiqueta.
       map.addLayer({
         id: L_POINT,
         type: "circle",
@@ -123,7 +123,7 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
           "circle-color": ["get", "color"],
           "circle-radius": ["case", ["==", ["get", "seleccionada"], 1], 13, 9],
           "circle-stroke-width": ["case", ["==", ["get", "seleccionada"], 1], 4, 3],
-          "circle-stroke-color": ["case", ["==", ["get", "seleccionada"], 1], "#fbbf24", "#ffffff"],
+          "circle-stroke-color": ["case", ["==", ["get", "seleccionada"], 1], "#1f7a4d", "#ffffff"],
         },
       });
 
@@ -141,8 +141,8 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
           "text-max-width": 10,
         },
         paint: {
-          "text-color": "#fff",
-          "text-halo-color": "rgba(26,18,7,0.92)",
+          "text-color": "#2b1d0e",
+          "text-halo-color": "rgba(255,255,255,0.95)",
           "text-halo-width": 1.5,
         },
       });
@@ -218,10 +218,10 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
   // ── Alternativa editorial si el mapa no carga (sin tecnicismos) ──
   if (noDisponible) {
     return (
-      <div className="absolute inset-0 overflow-y-auto bg-[#1a1207] p-4 apurimac-scroll md:p-5" role="status" aria-label="Explora los lugares sin mapa">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300/80">Atlas sin mapa interactivo</p>
+      <div className="absolute inset-0 overflow-y-auto bg-[#0c141f] p-4 apurimac-scroll md:p-5" role="status" aria-label="Explora los lugares sin mapa">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-400">Atlas sin mapa interactivo</p>
         <p className="mt-1 text-sm font-bold text-white">Explora los lugares en esta lista</p>
-        <p className="mt-1 text-[13px] text-amber-100/70">
+        <p className="mt-1 text-[13px] font-light text-slate-400">
           El mapa no pudo cargarse ahora mismo, pero tienes delante todo el contenido: elige un lugar para leer su historia.
         </p>
         <ul className="mt-4 space-y-2">
@@ -232,13 +232,13 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
                 onClick={() => onSelect(p)}
                 aria-current={selectedId === p.id ? "true" : undefined}
                 className={`flex min-h-[48px] w-full items-center gap-3 rounded-xl border p-2 text-left btn-transition ${
-                  selectedId === p.id ? "border-amber-400 bg-amber-400/10" : "border-white/10 bg-white/5 hover:border-amber-300/40"
+                  selectedId === p.id ? "border-sky-400 bg-sky-400/10" : "border-white/10 bg-white/5 hover:border-sky-400/30"
                 }`}
               >
                 <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: colorDe(p.categoria) }} aria-hidden="true" />
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-bold text-white">{p.nombre}</span>
-                  <span className="block text-xs text-amber-100/65">
+                  <span className="block text-xs text-slate-400">
                     {p.distrito} · {p.provincia}
                   </span>
                 </span>
