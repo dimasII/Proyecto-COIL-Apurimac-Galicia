@@ -1,83 +1,72 @@
 "use client";
 
 /**
- * APURÍMAC INMERSIVO — página principal.
- * Proyecto CamiñAndes (UNAMBA × USC).
- *
- * Layout:
- *  - Hero editorial superior
- *  - Sección mapa full-bleed: FilterBar + ApurimacMap + SidebarDetail + Tour
- *  - Tarjetas de lugares + footer cultural
- *
- * El mapa se carga con `ssr: false` vía next/dynamic para evitar
- * errores de Mapbox GL en el servidor.
+ * APURÍMAC INMERSIVO — CamiñAndes (UNAMBA × USC).
+ * Atlas turístico editorial: mapa + lista conectados.
  */
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import type mapboxgl from "mapbox-gl";
 import {
-  ChevronLeft,
-  ChevronRight,
+  ArrowRight,
+  BookOpenText,
+  Compass,
   Landmark,
-  Leaf,
+  List,
+  Map as MapIcon,
   MapPin,
   Mountain,
   Play,
+  Route,
   Sparkles,
   Square,
-  UtensilsCrossed,
-  X,
+  Users,
 } from "lucide-react";
 import { POIS, RUTA_CULTURAL } from "@/data/apurimacData";
 import { flyToPoi } from "@/components/Map/ApurimacMap";
 import FilterBar from "@/components/UI/FilterBar";
 import SidebarDetail from "@/components/UI/SidebarDetail";
+import PlaceCard from "@/components/UI/PlaceCard";
+import RutaCultural from "@/components/UI/RutaCultural";
+import EmptyState from "@/components/UI/EmptyState";
 import { APURIMAC_CENTER } from "@/types";
 import type { FiltrosMapa, POI } from "@/types";
-import { CATEGORIA_META } from "@/types";
 
-// Carga dinámica: sin SSR (Mapbox necesita window/document).
-const ApurimacMap = dynamic(
-  () => import("@/components/Map/ApurimacMap"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#1a1207] text-amber-100">
-        <Mountain className="h-10 w-10 animate-pulse text-amber-400" />
-        <p className="text-sm font-medium">
-          Cargando los Andes apurimeños…
-        </p>
+const ApurimacMap = dynamic(() => import("@/components/Map/ApurimacMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#1a1207] p-6" role="status" aria-label="Cargando el mapa">
+      <Mountain className="h-10 w-10 animate-pulse text-amber-400" aria-hidden="true" />
+      <p className="text-sm font-medium text-amber-100">Cargando los Andes apurimeños…</p>
+      <div className="w-56" aria-hidden="true">
+        <div className="skeleton h-2 rounded-full" />
+        <div className="skeleton mt-2 h-2 w-2/3 rounded-full" />
       </div>
-    ),
-  },
-);
+    </div>
+  ),
+});
 
-const ICONO_CAT: Record<string, React.ReactNode> = {
-  arqueologia: <Landmark className="h-3 w-3" />,
-  naturaleza: <Leaf className="h-3 w-3" />,
-  gastronomia: <UtensilsCrossed className="h-3 w-3" />,
-  mitos_tradiciones: <Sparkles className="h-3 w-3" />,
-};
+type VistaMovil = "mapa" | "lista";
+
+function scrollA(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 export default function Home() {
-  const [filtros, setFiltros] = useState<FiltrosMapa>({
-    busqueda: "",
-    categoria: "todas",
-    provincia: "todas",
-  });
+  const [filtros, setFiltros] = useState<FiltrosMapa>({ busqueda: "", categoria: "todas", provincia: "todas" });
   const [selected, setSelected] = useState<POI | null>(null);
-  // Tour guiado: índice en RUTA_CULTURAL o null si está detenido.
   const [tourIndex, setTourIndex] = useState<number | null>(null);
+  const [explorados, setExplorados] = useState<Set<string>>(new Set());
+  const [vista, setVista] = useState<VistaMovil>("mapa");
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const tarjetasRef = useRef<Record<string, HTMLElement | null>>({});
 
-  // ── Filtrado en tiempo real (lugares + comidas) ──
   const visibles = useMemo(() => {
     const q = filtros.busqueda.trim().toLowerCase();
     return POIS.filter((p) => {
-      if (filtros.categoria !== "todas" && p.categoria !== filtros.categoria)
-        return false;
-      if (filtros.provincia !== "todas" && p.provincia !== filtros.provincia)
-        return false;
+      if (filtros.categoria !== "todas" && p.categoria !== filtros.categoria) return false;
+      if (filtros.provincia !== "todas" && p.provincia !== filtros.provincia) return false;
       if (!q) return true;
       const platos = p.gastronomiaLocal.map((g) => g.nombre).join(" ");
       return [p.nombre, p.distrito, p.provincia, p.descripcionCorta, platos, ...(p.etiquetas ?? [])]
@@ -87,305 +76,343 @@ export default function Home() {
     });
   }, [filtros]);
 
-  const elegir = (poi: POI) => setSelected(poi);
+  /** Marcador → tarjeta: selecciona y desplaza la tarjeta a la vista. */
+  const elegirDesdeMapa = (poi: POI) => {
+    setSelected(poi);
+    setExplorados((prev) => new Set(prev).add(poi.id));
+    requestAnimationFrame(() => {
+      tarjetasRef.current[poi.id]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  };
 
-  // ── Tour virtual guiado ──────────────────────────
+  /** Tarjeta → mapa: selecciona y centra el mapa; en móvil salta a la vista de mapa. */
+  const centrarEnMapa = (poi: POI) => {
+    setSelected(poi);
+    setExplorados((prev) => new Set(prev).add(poi.id));
+    flyToPoi(mapRef.current, poi);
+    if (typeof window !== "undefined" && window.innerWidth < 1024) setVista("mapa");
+    scrollA("explorar");
+  };
+
+  const elegir = (poi: POI) => {
+    setSelected(poi);
+    setExplorados((prev) => new Set(prev).add(poi.id));
+  };
+
+  const elegirPorId = (id: string) => {
+    const poi = POIS.find((p) => p.id === id);
+    if (!poi) return;
+    elegir(poi);
+    flyToPoi(mapRef.current, poi);
+    scrollA("explorar");
+  };
+
+  const indiceSeleccionado = selected ? visibles.findIndex((p) => p.id === selected.id) : -1;
+  const posicion =
+    indiceSeleccionado >= 0 ? `Lugar ${indiceSeleccionado + 1} de ${visibles.length}` : selected ? "Detalle del lugar" : "";
+  const anterior = indiceSeleccionado > 0 ? visibles[indiceSeleccionado - 1] : null;
+  const siguiente = indiceSeleccionado >= 0 && indiceSeleccionado < visibles.length - 1 ? visibles[indiceSeleccionado + 1] : null;
+
   const iniciarTour = () => {
     setTourIndex(0);
     const primera = RUTA_CULTURAL[0];
-    setSelected(primera);
+    elegir(primera);
     flyToPoi(mapRef.current, primera);
+    scrollA("explorar");
   };
   const detenerTour = () => setTourIndex(null);
   const pasoTour = (dir: 1 | -1) => {
     if (tourIndex === null) return;
-    const next =
-      (tourIndex + dir + RUTA_CULTURAL.length) % RUTA_CULTURAL.length;
+    const next = (tourIndex + dir + RUTA_CULTURAL.length) % RUTA_CULTURAL.length;
     setTourIndex(next);
     const poi = RUTA_CULTURAL[next];
-    setSelected(poi);
+    elegir(poi);
     flyToPoi(mapRef.current, poi);
   };
-  const tourBadge =
-    tourIndex !== null
-      ? `Parada ${tourIndex + 1} de ${RUTA_CULTURAL.length}`
-      : null;
+  const tourBadge = tourIndex !== null ? `Parada ${tourIndex + 1} de ${RUTA_CULTURAL.length}` : null;
 
   const volverInicio = () => {
-    mapRef.current?.flyTo({
-      center: APURIMAC_CENTER,
-      zoom: 8.5,
-      pitch: 0,
-      bearing: 0,
-      duration: 2000,
-      essential: true,
-    });
+    const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    try {
+      mapRef.current?.flyTo({
+        center: APURIMAC_CENTER,
+        zoom: 8.5,
+        pitch: 0,
+        bearing: 0,
+        duration: reduce ? 0 : 1400,
+        essential: true,
+      });
+    } catch {
+      /* mapa aún no listo */
+    }
   };
+
+  const provinciasUnicas = new Set(POIS.map((p) => p.provincia)).size;
 
   return (
     <div className="bg-[#0f0a04] text-amber-50">
-      {/* ═══ HERO ═══ */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=2000&auto=format&fit=crop)",
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-[#1a1207]/70 to-[#0f0a04]" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-14 md:pb-14 md:pt-20">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-black/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-200 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5" />
+      {/* ═══ HERO EDITORIAL ═══ */}
+      <section id="inicio" aria-labelledby="titulo-hero" className="relative scroll-mt-16 overflow-hidden">
+        <div className="absolute inset-0" aria-hidden="true">
+          <Image
+            src="https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=2000&auto=format&fit=crop"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-[#1a1207]/70 to-[#0f0a04]" aria-hidden="true" />
+        <div className="textil-andino absolute inset-x-0 top-0 h-1.5" aria-hidden="true" />
+        <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-14 md:pb-16 md:pt-20">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-black/40 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-200 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             CamiñAndes · UNAMBA × USC
           </p>
-          <h1 className="max-w-3xl text-4xl font-black leading-[1.05] md:text-6xl">
+          <h1 id="titulo-hero" className="max-w-3xl font-display text-4xl font-black leading-[1.05] md:text-6xl">
             Apurímac
-            <span className="block bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-amber-200 via-amber-400 to-terracota-400 bg-clip-text text-transparent">
               Inmersivo
             </span>
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-amber-100/85 md:text-lg">
-            Arqueología chanka e inca, paisajes sagrados, la huatia cocida bajo
-            la tierra y los mitos que aún hablan en quechua. Explora el mapa,
-            filtra por sabores y déjate guiar por la Ruta Cultural.
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-amber-100/90 md:text-lg">
+            Un atlas vivo: mapa cultural, fichas con historia, sabores y leyendas, y una ruta de 7 paradas entre Saywite y Sóndor.
           </p>
           <div className="mt-6 flex flex-wrap gap-2.5">
-            <a
-              href="#mapa"
-              className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-5 py-2.5 text-sm font-bold text-stone-900 shadow-xl shadow-amber-500/25 transition hover:bg-amber-300"
-            >
-              <MapPin className="h-4 w-4" />
-              Explorar el mapa
-            </a>
             <button
-              onClick={iniciarTour}
-              className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-white/10 px-5 py-2.5 text-sm font-bold text-amber-100 backdrop-blur transition hover:bg-white/20"
+              type="button"
+              onClick={() => scrollA("explorar")}
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-amber-400 px-6 py-3 text-sm font-bold text-stone-900 shadow-xl shadow-amber-500/25 btn-transition hover:bg-amber-300"
             >
-              <Play className="h-4 w-4" />
-              Iniciar Ruta Cultural
+              <MapPin className="h-4 w-4" aria-hidden="true" />
+              Explorar el mapa
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollA("ruta-cultural")}
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-full border border-amber-300/40 bg-white/10 px-6 py-3 text-sm font-bold text-amber-100 backdrop-blur btn-transition hover:bg-white/20"
+            >
+              <Route className="h-4 w-4" aria-hidden="true" />
+              Ver la Ruta Cultural
             </button>
           </div>
-          {/* Stats */}
-          <div className="mt-8 grid max-w-2xl grid-cols-3 gap-2.5">
+          <dl className="mt-8 grid max-w-2xl grid-cols-3 gap-2.5" aria-label="Cifras del proyecto">
             {[
-              { n: `${POIS.length}`, l: "lugares vivos" },
-              { n: "7", l: "provincias" },
-              { n: `${RUTA_CULTURAL.length} paradas`, l: "ruta guiada" },
+              { n: `${POIS.length}`, l: "Lugares por descubrir" },
+              { n: `${provinciasUnicas}`, l: "Provincias representadas" },
+              { n: `${RUTA_CULTURAL.length}`, l: "Paradas en la Ruta" },
             ].map((s) => (
-              <div
-                key={s.l}
-                className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center backdrop-blur"
-              >
-                <p className="text-xl font-black text-amber-300 md:text-2xl">
-                  {s.n}
-                </p>
-                <p className="text-[11px] uppercase tracking-wider text-amber-100/70">
-                  {s.l}
-                </p>
+              <div key={s.l} className="rounded-2xl border border-white/10 bg-black/40 p-3 text-center backdrop-blur">
+                <dt className="order-2 mt-1 block text-[11px] uppercase tracking-wider text-amber-100/70">{s.l}</dt>
+                <dd className="order-1 text-xl font-black text-amber-300 md:text-2xl">{s.n}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
 
-      {/* ═══ MAPA ═══ */}
-      <section id="mapa" className="relative scroll-mt-16">
-        <div className="relative h-[88vh] min-h-[620px] w-full overflow-hidden md:h-[82vh]">
-          <ApurimacMap
-            pois={visibles}
-            selectedId={selected?.id ?? null}
-            onSelect={elegir}
-            mapRef={mapRef}
-            tourIndex={tourIndex}
-          />
+      {/* ═══ ATLAS: MAPA + LISTA ═══ */}
+      <section id="explorar" aria-labelledby="titulo-explorar" className="relative scroll-mt-16">
+        <div className="mx-auto max-w-6xl px-4 pb-4 pt-10">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300/80">Atlas interactivo</p>
+          <h2 id="titulo-explorar" className="mt-1 font-display text-2xl font-black md:text-3xl">
+            Mapa y lugares, juntos
+          </h2>
+          <p className="mt-1 max-w-2xl text-[15px] text-amber-100/75">
+            Elige un punto en el mapa para resaltar su tarjeta, o usa el botón de navegación de una tarjeta para centrar el mapa.
+            Los puntos cercanos se agrupan con un número: tócalos para acercar.
+          </p>
+        </div>
 
-          {/* Controles superiores: filtros */}
-          <div className="pointer-events-none absolute left-3 right-3 top-3 z-10 md:left-6 md:right-auto md:top-6 md:w-[340px]">
-            <FilterBar
-              filtros={filtros}
-              onChange={setFiltros}
-              totalVisibles={visibles.length}
-              totalPOIs={POIS.length}
-            />
-            <div className="pointer-events-auto mt-2 flex gap-2">
+        <div className="mx-auto max-w-6xl px-4">
+          <FilterBar filtros={filtros} onChange={setFiltros} totalVisibles={visibles.length} totalPOIs={POIS.length} />
+
+          {/* Alternador móvil Mapa / Lista */}
+          <div className="mt-3 flex rounded-2xl border border-white/10 bg-black/40 p-1 lg:hidden" role="tablist" aria-label="Alternar entre mapa y lista">
+            {(
+              [
+                { id: "mapa", etiqueta: "Mapa", icono: <MapIcon className="h-4 w-4" aria-hidden="true" /> },
+                { id: "lista", etiqueta: `Lista · ${visibles.length}`, icono: <List className="h-4 w-4" aria-hidden="true" /> },
+              ] as Array<{ id: VistaMovil; etiqueta: string; icono: React.ReactNode }>
+            ).map((t) => (
               <button
-                onClick={volverInicio}
-                className="rounded-full border border-white/15 bg-[#1a1207]/85 px-3.5 py-1.5 text-xs font-semibold text-amber-100 backdrop-blur transition hover:bg-[#1a1207]"
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={vista === t.id}
+                onClick={() => setVista(t.id)}
+                className={`inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl text-sm font-bold btn-transition ${
+                  vista === t.id ? "bg-amber-400 text-stone-900" : "text-amber-100/80 hover:bg-white/10"
+                }`}
               >
-                ⟲ Volver a Apurímac
+                {t.icono}
+                {t.etiqueta}
               </button>
-              {tourIndex === null ? (
-                <button
-                  onClick={iniciarTour}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3.5 py-1.5 text-xs font-bold text-stone-900 shadow-lg transition hover:bg-amber-300"
-                >
-                  <Play className="h-3.5 w-3.5" /> Ruta Cultural
-                </button>
-              ) : (
-                <button
-                  onClick={detenerTour}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-red-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-lg transition hover:bg-red-400"
-                >
-                  <Square className="h-3.5 w-3.5" /> Detener tour
-                </button>
-              )}
-            </div>
+            ))}
           </div>
 
-          {/* Drawer detalle */}
-          {selected && (
-            <div className="absolute bottom-3 left-3 right-3 z-10 md:bottom-6 md:left-auto md:right-6 md:top-6 md:w-[380px]">
-              <SidebarDetail
-                key={selected.id}
-                poi={selected}
-                onClose={() => {
-                  setSelected(null);
-                  setTourIndex(null);
-                }}
-                tourBadge={tourBadge}
-              />
-              {/* Controles del tour */}
-              {tourIndex !== null && (
-                <div className="pointer-events-auto mt-2 flex items-center justify-between rounded-2xl border border-amber-300/30 bg-[#1a1207]/90 p-2.5 backdrop-blur">
+          <div className="mt-3 grid gap-4 lg:grid-cols-[400px_minmax(0,1fr)]">
+            {/* ── Panel lista (escritorio siempre visible; móvil según pestaña) ── */}
+            <div className={`${vista === "lista" ? "block" : "hidden"} lg:block`}>
+              <div
+                id="lugares"
+                className="apurimac-scroll max-h-[70vh] scroll-mt-24 space-y-3 overflow-y-auto rounded-2xl border border-white/10 bg-black/30 p-3 lg:max-h-[78vh]"
+                role="region"
+                aria-label={`Lista de lugares (${visibles.length} resultados)`}
+                aria-live="polite"
+              >
+                <div className="flex flex-wrap items-center gap-2 px-1 pb-1">
                   <button
-                    onClick={() => pasoTour(-1)}
-                    className="inline-flex items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    type="button"
+                    onClick={volverInicio}
+                    className="inline-flex min-h-[40px] items-center rounded-full border border-white/15 bg-[#1a1207]/85 px-3.5 py-1.5 text-xs font-semibold text-amber-100 btn-transition hover:bg-[#1a1207]"
                   >
-                    <ChevronLeft className="h-4 w-4" /> Anterior
+                    ⟲ Ver todo Apurímac
                   </button>
-                  <span className="text-xs font-bold text-amber-300">
-                    {tourIndex + 1} / {RUTA_CULTURAL.length}
-                  </span>
-                  <button
-                    onClick={() => pasoTour(1)}
-                    className="inline-flex items-center gap-1 rounded-xl bg-amber-400 px-3 py-2 text-xs font-bold text-stone-900 hover:bg-amber-300"
-                  >
-                    Siguiente <ChevronRight className="h-4 w-4" />
-                  </button>
+                  {tourIndex === null ? (
+                    <button
+                      type="button"
+                      onClick={iniciarTour}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-amber-400 px-3.5 py-1.5 text-xs font-bold text-stone-900 btn-transition hover:bg-amber-300"
+                    >
+                      <Play className="h-3.5 w-3.5" aria-hidden="true" /> Ruta Cultural
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={detenerTour}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-red-500 px-3.5 py-1.5 text-xs font-bold text-white btn-transition hover:bg-red-400"
+                    >
+                      <Square className="h-3.5 w-3.5" aria-hidden="true" /> Detener tour
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* Leyenda flotante inferior (móvil) */}
-          {!selected && (
-            <div className="absolute bottom-3 left-1/2 z-10 w-max max-w-[94vw] -translate-x-1/2 overflow-x-auto rounded-full border border-white/15 bg-black/60 px-4 py-1.5 text-[11px] text-amber-100/80 backdrop-blur md:hidden">
-              {visibles.length} lugares · toca un punto del mapa
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ═══ TARJETAS ═══ */}
-      <section className="mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-black md:text-3xl">
-              Lugares que hablan quechua
-            </h2>
-            <p className="mt-1 text-sm text-amber-100/70">
-              {visibles.length} resultados
-              {filtros.busqueda && (
-                <>
-                  {" "}
-                  para “<em>{filtros.busqueda}</em>”
-                  <button
-                    onClick={() =>
-                      setFiltros({ ...filtros, busqueda: "" })
-                    }
-                    className="ml-2 inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-xs hover:bg-white/20"
-                  >
-                    <X className="h-3 w-3" /> limpiar
-                  </button>
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-
-        {visibles.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/20 p-10 text-center text-sm text-amber-100/70">
-            Sin resultados. Prueba con “huatia”, “laguna” o “Saywite”.
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {visibles.map((p) => {
-              const meta = CATEGORIA_META[p.categoria];
-              const activo = selected?.id === p.id;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => elegir(p)}
-                  className={`group overflow-hidden rounded-2xl border text-left transition-all ${
-                    activo
-                      ? "border-amber-400 shadow-xl shadow-amber-500/20"
-                      : "border-white/10 bg-white/5 hover:border-amber-300/40 hover:bg-white/10"
-                  }`}
-                >
-                  <div className="relative h-40 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={p.imagenUrl}
-                      alt={p.nombre}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                {visibles.length === 0 ? (
+                  <EmptyState
+                    titulo="Sin resultados para esos filtros."
+                    descripcion="Prueba con “huatia”, “laguna” o “Saywite”, o cambia de categoría y provincia."
+                    accionLabel="Mostrar todos los lugares"
+                    onAccion={() => setFiltros({ busqueda: "", categoria: "todas", provincia: "todas" })}
+                  />
+                ) : (
+                  visibles.map((p, i) => (
+                    <PlaceCard
+                      key={p.id}
+                      ref={(el) => {
+                        tarjetasRef.current[p.id] = el;
+                      }}
+                      poi={p}
+                      index={i}
+                      activo={selected?.id === p.id}
+                      onSelect={elegir}
+                      onFocusMap={centrarEnMapa}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur">
-                      <span
-                        className="h-2 w-2 rounded-full"
-                        style={{ background: meta.color }}
-                      />
-                      {meta.etiqueta}
-                    </span>
-                    <span className="absolute bottom-3 left-3 right-3">
-                      <span className="block truncate text-base font-extrabold text-white">
-                        {p.nombre}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-amber-200/90">
-                        <MapPin className="h-3 w-3" />
-                        {p.distrito} · {p.provincia} ·{" "}
-                        {p.altitud.toLocaleString("es-PE")} m
-                      </span>
-                    </span>
-                  </div>
-                  <div className="p-3.5">
-                    <p className="line-clamp-2 text-[13px] leading-relaxed text-amber-50/80">
-                      {p.descripcionCorta}
-                    </p>
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-amber-100/80">
-                        {ICONO_CAT[p.categoria]}
-                        {p.gastronomiaLocal[0]?.nombre ?? "Tradición viva"}
-                      </span>
-                      {p.esEmblematico && (
-                        <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[11px] font-bold text-amber-300">
-                          ★ Ruta Cultural
+                  ))
+                )}
+              </div>
+              <p className="mt-2 text-xs text-amber-100/50">
+                Leyenda: los colores identifican Arqueología · Naturaleza · Gastronomía · Mitos y tradiciones. El nombre aparece al seleccionar un punto.
+              </p>
+            </div>
+
+            {/* ── Panel mapa (escritorio sticky; móvil según pestaña) ── */}
+            <div className={`${vista === "mapa" ? "block" : "hidden"} lg:block`}>
+              <div className="relative h-[68vh] min-h-[480px] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl lg:sticky lg:top-20 lg:h-[78vh]">
+                <ApurimacMap pois={visibles} selectedId={selected?.id ?? null} onSelect={elegirDesdeMapa} mapRef={mapRef} tourIndex={tourIndex} />
+
+                {selected && (
+                  <div className="absolute bottom-3 left-3 right-3 z-10 md:bottom-4 md:left-auto md:right-4 md:top-4 md:w-[360px]">
+                    <SidebarDetail
+                      key={selected.id}
+                      poi={selected}
+                      posicion={posicion}
+                      tourBadge={tourBadge}
+                      onClose={() => {
+                        setSelected(null);
+                        setTourIndex(null);
+                      }}
+                      onPrev={anterior ? () => elegir(anterior) : undefined}
+                      onNext={siguiente ? () => elegir(siguiente) : undefined}
+                      onVerEnMapa={() => selected && flyToPoi(mapRef.current, selected)}
+                    />
+                    {tourIndex !== null && (
+                      <div className="mt-2 flex items-center justify-between rounded-2xl border border-amber-300/30 bg-[#1a1207]/90 p-2.5 backdrop-blur">
+                        <button
+                          type="button"
+                          onClick={() => pasoTour(-1)}
+                          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold btn-transition hover:bg-white/20"
+                        >
+                          ← Anterior
+                        </button>
+                        <span className="text-xs font-bold text-amber-300" role="status">
+                          {tourIndex + 1} / {RUTA_CULTURAL.length}
                         </span>
-                      )}
-                    </div>
+                        <button
+                          type="button"
+                          onClick={() => pasoTour(1)}
+                          className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-amber-400 px-3 py-2 text-xs font-bold text-stone-900 btn-transition hover:bg-amber-300"
+                        >
+                          Siguiente →
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </button>
-              );
-            })}
+                )}
+
+                {!selected && (
+                  <p className="absolute bottom-3 left-1/2 z-10 w-max max-w-[94vw] -translate-x-1/2 rounded-full border border-white/15 bg-black/65 px-4 py-2 text-xs text-amber-100/90 backdrop-blur" role="status">
+                    {visibles.length} lugares · elige un punto para ver su ficha
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </section>
 
-      {/* ═══ FOOTER CULTURAL ═══ */}
-      <footer className="border-t border-white/10 bg-black/40 px-4 py-8">
-        <div className="mx-auto max-w-6xl text-center text-xs leading-relaxed text-amber-100/60">
-          <p className="text-sm font-bold text-amber-200">
-            Apurímac Inmersivo · CamiñAndes — UNAMBA × USC
+      {/* ═══ RUTA CULTURAL ═══ */}
+      <section id="ruta-cultural" aria-labelledby="titulo-ruta" className="scroll-mt-16 border-t border-white/10 bg-black/30">
+        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300/80">Experiencia guiada · 7 paradas</p>
+          <h2 id="titulo-ruta" className="mt-1 font-display text-2xl font-black md:text-3xl">
+            Tu recorrido por Apurímac
+          </h2>
+          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-amber-100/75">
+            Del monolito de Saywite a la pirámide de Sóndor, pasando por la huatia, las termas y el cañón:
+            una narrativa que une agua, tierra y memoria quechua. Marca tu progreso parada por parada.
           </p>
-          <p className="mx-auto mt-2 max-w-2xl">
-            Web educativa y cultural sin fines comerciales. Los relatos son
-            tradición oral con fines pedagógicos; las coordenadas son
-            referenciales. Mapa © Mapbox © OpenStreetMap.
-          </p>
+          <div className="mt-6">
+            <RutaCultural explorados={explorados} onSelect={elegirPorId} onIniciar={iniciarTour} />
+          </div>
         </div>
-      </footer>
+      </section>
+
+      {/* ═══ ACERCA / AYUDA ═══ */}
+      <section aria-labelledby="titulo-acerca" className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { icon: <BookOpenText className="h-5 w-5" aria-hidden="true" />, t: "Para docentes", d: "Cada lugar reúne historia, gastronomía y leyenda con etiquetas y altitudes. Úsalo como aula viva: pide a tus estudiantes comparar dos paradas de la Ruta." },
+            { icon: <Users className="h-5 w-5" aria-hidden="true" />, t: "Para estudiantes", d: "Empieza por Explorar el mapa, abre un lugar y sigue con Siguiente. Anota tres palabras en quechua que descubras en el recorrido." },
+            { icon: <Compass className="h-5 w-5" aria-hidden="true" />, t: "Para viajeras", d: "Filtra por Naturaleza o Gastronomía, revisa distrito y altitud, y arma tu itinerario con las 7 paradas de la Ruta Cultural." },
+          ].map((c) => (
+            <div key={c.t} className="rounded-2xl border border-white/10 bg-white/[.04] p-5">
+              <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-xl bg-amber-400/15 text-amber-300">{c.icon}</span>
+              <h3 id={c.t === "Para docentes" ? "titulo-acerca" : undefined} className="mt-3 text-base font-extrabold text-white">{c.t}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-amber-100/75">{c.d}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-center">
+          <a href="/about" className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-bold text-amber-300 hover:text-amber-200 hover:underline hover:underline-offset-4">
+            Conoce más del proyecto CamiñAndes <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </a>
+        </p>
+        <p className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-amber-100/50">
+          <Landmark className="h-3.5 w-3.5" aria-hidden="true" />
+          Museo digital y guía de exploración · UNAMBA × USC
+        </p>
+      </section>
     </div>
   );
 }

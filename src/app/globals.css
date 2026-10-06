@@ -4,7 +4,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Marcadores personalizados Apurímac ─────────────────── */
+/* ══ CamiñAndes · Design tokens ══ */
+:root {
+  --andes-bg: #0f0a04;
+  --andes-panel: #1a1207;
+  --andes-cream: #faf7f0;
+  --andes-gold: #fbbf24;
+  --andes-terra: #c65a32;
+  --focus-ring: #fcd34d;
+  --dur: 220ms;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus visible global — WCAG 2.2 AA */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 100;
+  background: #fbbf24;
+  color: #1a1207;
+  font-weight: 800;
+  padding: 0.6rem 1rem;
+  border-radius: 9999px;
+  transition: top var(--dur) ease;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* ── Detalle textil andino (acento sobrio, sin recargar) ── */
+.textil-andino {
+  background: repeating-linear-gradient(
+    90deg,
+    #fbbf24 0 14px,
+    #c65a32 14px 22px,
+    #1a1207 22px 26px,
+    #7c2d12 26px 30px,
+    #fbbf24 30px 44px
+  );
+}
+
+/* ── Marcadores legacy (compatibilidad con fallback lista) ──
+   El mapa actual usa clustering nativo de Mapbox: los puntos cercanos
+   se agrupan con un número y la etiqueta solo aparece al seleccionar. */
 .apurimac-marker {
   display: flex;
   flex-direction: column;
@@ -13,23 +71,33 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transform: translateY(0);
-  transition: transform 0.2s ease;
-  padding: 0;
+  padding: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: flex-end;
+  transition: transform var(--dur) ease;
 }
-.apurimac-marker:hover {
-  transform: translateY(-3px) scale(1.06);
-}
+.apurimac-marker:hover { transform: translateY(-3px) scale(1.06); }
 .apurimac-marker-dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 9999px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  line-height: 1;
+  color: #fff;
   background: var(--mk, #b45309);
   border: 3px solid #fff;
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.45),
-    0 0 0 6px color-mix(in srgb, var(--mk, #b45309) 25%, transparent);
+  box-shadow: 0 4px 14px rgba(0,0,0,.45), 0 0 0 6px color-mix(in srgb, var(--mk, #b45309) 25%, transparent);
   position: relative;
+}
+/* Forma por categoría (además del color) */
+.apurimac-marker[data-cat="arqueologia"] .apurimac-marker-dot { border-radius: 8px; }
+.apurimac-marker[data-cat="naturaleza"] .apurimac-marker-dot { border-radius: 9999px; }
+.apurimac-marker[data-cat="gastronomia"] .apurimac-marker-dot { border-radius: 9999px 9999px 9999px 4px; }
+.apurimac-marker[data-cat="mitos_tradiciones"] .apurimac-marker-dot {
+  border-radius: 9999px;
+  border-style: dashed;
 }
 .apurimac-marker-dot::after {
   content: "";
@@ -45,8 +113,8 @@
   font-size: 11px;
   font-weight: 700;
   color: #fff;
-  background: rgba(26, 18, 7, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(26,18,7,.9);
+  border: 1px solid rgba(255,255,255,.18);
   padding: 2px 8px;
   border-radius: 9999px;
   white-space: nowrap;
@@ -56,52 +124,62 @@
   text-overflow: ellipsis;
 }
 .apurimac-marker.is-active .apurimac-marker-dot {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   animation: mk-pulse 1.6s ease-in-out infinite;
 }
 @keyframes mk-pulse {
-  0%,
-  100% {
-    box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.45),
-      0 0 0 6px color-mix(in srgb, var(--mk) 30%, transparent);
-  }
-  50% {
-    box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.45),
-      0 0 0 12px color-mix(in srgb, var(--mk) 12%, transparent);
-  }
+  0%,100% { box-shadow: 0 4px 14px rgba(0,0,0,.45), 0 0 0 6px color-mix(in srgb, var(--mk) 30%, transparent); }
+  50% { box-shadow: 0 4px 14px rgba(0,0,0,.45), 0 0 0 12px color-mix(in srgb, var(--mk) 12%, transparent); }
 }
 
-/* ── Scroll fino para paneles ───────────────────────────── */
-.apurimac-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-.apurimac-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.apurimac-scroll::-webkit-scrollbar-thumb {
-  background: rgba(251, 191, 36, 0.3);
-  border-radius: 8px;
-}
-.apurimac-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(251, 191, 36, 0.5);
-}
+/* Scroll fino */
+.apurimac-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.apurimac-scroll::-webkit-scrollbar-track { background: transparent; }
+.apurimac-scroll::-webkit-scrollbar-thumb { background: rgba(251,191,36,.3); border-radius: 8px; }
+.apurimac-scroll::-webkit-scrollbar-thumb:hover { background: rgba(251,191,36,.5); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
 
-/* Mapbox: oscurecer controles para tema nocturno andino */
+/* Mapbox controles noche andina */
 .mapboxgl-ctrl-group {
-  background: rgba(26, 18, 7, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(26,18,7,.92) !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
   backdrop-filter: blur(8px);
 }
-.mapboxgl-ctrl-group button span {
-  filter: invert(0.9) sepia(0.4) saturate(3) hue-rotate(-15deg);
+.mapboxgl-ctrl-group button span { filter: invert(.9) sepia(.4) saturate(3) hue-rotate(-15deg); }
+.mapboxgl-ctrl-attrib { background: rgba(0,0,0,.55) !important; font-size: 10px !important; }
+.mapboxgl-ctrl-attrib a { color: #fcd34d !important; }
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.14) 37%, rgba(255,255,255,.06) 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
 }
-.mapboxgl-ctrl-attrib {
-  background: rgba(0, 0, 0, 0.5) !important;
-  font-size: 10px !important;
-}
-.mapboxgl-ctrl-attrib a {
-  color: #fcd34d !important;
+
+/* Animación de entrada progresiva para cards */
+.reveal { animation: fade-up .5s ease both; }
+.reveal-1 { animation-delay: .04s; }
+.reveal-2 { animation-delay: .08s; }
+.reveal-3 { animation-delay: .12s; }
+.reveal-4 { animation-delay: .16s; }
+.reveal-5 { animation-delay: .2s; }
+
+/* Transiciones premium en interactivos */
+.btn-transition { transition: transform var(--dur) ease, background-color var(--dur) ease, box-shadow var(--dur) ease, border-color var(--dur) ease; }
+.btn-transition:hover { transform: translateY(-1px); }
+.btn-transition:active { transform: translateY(0) scale(.98); }
+
+.card-lift { transition: transform var(--dur) ease, box-shadow var(--dur) ease, border-color var(--dur) ease, background-color var(--dur) ease; }
+.card-lift:hover { transform: translateY(-4px); }
+
+/* Respeto a movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

@@ -4,6 +4,11 @@ export interface Post {
   excerpt: string;
   date: string;
   author: string;
+  /** Etiqueta editorial (no inventa contenido turístico). */
+  category: string;
+  /** Reutiliza fotografías ya usadas en el atlas (mismo banco de imágenes). */
+  cover: string;
+  coverAlt: string;
   content: string;
 }
 
@@ -15,6 +20,10 @@ export const posts: Post[] = [
       "Damos comienzo a esta iniciativa de colaboración entre Apurímac y Galicia, promoviendo el intercambio cultural y educativo.",
     date: "2026-09-15",
     author: "Equipo COIL",
+    category: "Proyecto",
+    cover:
+      "https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=1200&auto=format&fit=crop",
+    coverAlt: "Fotografía de paisaje andino de Apurímac al amanecer",
     content: `
 # Inicio del Proyecto COIL Apurimac-Galicia
 
@@ -38,6 +47,10 @@ En las próximas semanas estaremos publicando más contenido sobre las actividad
       "Descubrimos cómo el intercambio cultural enriquece a ambas comunidades y fortalece la identidad de cada región.",
     date: "2026-09-22",
     author: "María García",
+    category: "Cultura",
+    cover:
+      "https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1200&auto=format&fit=crop",
+    coverAlt: "Fotografía de celebración y danza tradicional andina",
     content: `
 # Intercambio Cultural: Puentes entre dos mundos
 
@@ -59,6 +72,10 @@ Estas actividades no solo enriquecen a los participantes, sino que también fort
       "La educación global como herramienta para construir un futuro más conectado y colaborativo entre nuestras comunidades.",
     date: "2026-10-01",
     author: "Carlos Quispe",
+    category: "Educación",
+    cover:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1200&auto=format&fit=crop",
+    coverAlt: "Fotografía de montaña andina, aula viva del proyecto",
     content: `
 # Educación Global para un Futuro Compartido
 
