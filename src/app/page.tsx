@@ -27,7 +27,7 @@ import SidebarDetail from "@/components/UI/SidebarDetail";
 import PlaceCard from "@/components/UI/PlaceCard";
 import RutaCultural from "@/components/UI/RutaCultural";
 import EmptyState from "@/components/UI/EmptyState";
-import { APURIMAC_CENTER } from "@/types";
+import { APURIMAC_FIT_BOUNDS } from "@/data/apurimacRegion";
 import type { FiltrosMapa, POI } from "@/types";
 
 const ApurimacMap = dynamic(() => import("@/components/Map/ApurimacMap"), {
@@ -131,13 +131,9 @@ export default function Home() {
   const volverInicio = () => {
     const reduce = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     try {
-      mapRef.current?.flyTo({
-        center: APURIMAC_CENTER,
-        zoom: 8.5,
-        pitch: 0,
-        bearing: 0,
+      mapRef.current?.fitBounds(APURIMAC_FIT_BOUNDS, {
+        padding: 30,
         duration: reduce ? 0 : 1400,
-        essential: true,
       });
     } catch {
       /* mapa aún no listo */
@@ -176,8 +172,8 @@ export default function Home() {
             Mapa y lugares, juntos
           </h2>
           <p className="mt-1 max-w-2xl text-[15px] font-light text-slate-400">
-            Elige un punto en el mapa para resaltar su tarjeta, o usa el botón de navegación de una tarjeta para centrar el mapa.
-            Los puntos cercanos se agrupan con un número: tócalos para acercar.
+            El mapa está centrado solo en Apurímac: usa el panel «Capas» para cambiar entre Relieve, Satélite y Claro,
+            activar el terreno 3D, ver la altitud de cada lugar e inclinar la vista para apreciar el tamaño de las montañas.
           </p>
         </div>
 
