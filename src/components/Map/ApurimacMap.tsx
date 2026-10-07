@@ -371,9 +371,36 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
     map.addControl(new mapboxgl.ScaleControl({ maxWidth: 120, unit: "metric" }), "bottom-left");
 
-    map.on("error", () => setNoDisponible(true));
+    // ── Errores NO fatales: la telemetría bloqueada por adblockers y el
+    // terreno deshabilitado en navegación privada NO deben tumbar el mapa.
+    // Solo el fallo de estilo/token (401/403) marca el mapa como no disponible.
+    map.on("error", (e) => {
+      const err = e?.error as { status?: number; message?: string; url?: string } | undefined;
+      const url = String(err?.url ?? "");
+      const msg = String(err?.message ?? e ?? "");
+      if (url.includes("events.mapbox.com")) return; // adblocker: inofensivo
+      if (/fingerprint|canvas2d|terrain|hillshade/i.test(msg)) {
+        // Navegación privada: degradar a mapa plano sin tumbar nada.
+        setTerreno3D(false);
+        try {
+          map.setTerrain(null);
+        } catch {
+          /* sin terreno */
+        }
+        return;
+      }
+      if (err?.status === 401 || err?.status === 403 || /access token|unauthorized|forbidden/i.test(msg)) {
+        setNoDisponible(true);
+      }
+      // Cualquier otro error de tesela se ignora: el mapa sigue usable.
+    });
 
     map.on("load", () => {
+      try {
+        map.resize();
+      } catch {
+        /* sin resize */
+      }
       agregarCapasPropias(map);
       // Encuadre inicial ceñido a la región (efecto "solo Apurímac").
       try {
