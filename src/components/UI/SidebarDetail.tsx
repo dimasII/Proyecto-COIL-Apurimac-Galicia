@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import GaleriaLugar from "./GaleriaLugar";
 import {
   ArrowLeft,
   ArrowRight,
@@ -57,41 +57,35 @@ export default function SidebarDetail({ poi, posicion, tourBadge, onClose, onPre
       role="dialog"
       aria-modal="false"
       aria-labelledby="detalle-titulo"
-      className="pointer-events-auto flex max-h-[52vh] w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0c141f]/90 shadow-2xl backdrop-blur-xl md:max-h-none md:h-full"
+      className="pointer-events-auto flex max-h-[60vh] w-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-[#0c141f]/95 shadow-2xl backdrop-blur-xl md:max-h-none md:h-full"
     >
-      <div className="relative h-40 shrink-0 md:h-48">
-        <Image
-          src={poi.imagenUrl}
-          alt={`Fotografía de ${poi.nombre}, ${poi.distrito}`}
-          fill
-          sizes="(max-width: 768px) 100vw, 360px"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
+      <div className="relative shrink-0">
+        <GaleriaLugar poi={poi} />
+        <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
         <button
           type="button"
           onClick={onClose}
           aria-label="Cerrar ficha del lugar"
-          className="absolute right-3 top-3 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/60 text-white backdrop-blur btn-transition hover:bg-black/85"
+          className="absolute right-3 top-3 z-40 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/60 text-white backdrop-blur btn-transition hover:bg-black/85"
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
-        <div className="absolute bottom-3 left-4 right-4">
+        <div className="absolute bottom-3 left-4 right-4 z-30">
           <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-            <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${meta.colorBg}`}>{meta.etiqueta}</span>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${meta.colorBg}`}>{meta.etiqueta}</span>
             {tourBadge && (
-              <span className="rounded-full bg-terracota-500 px-2.5 py-0.5 text-[11px] font-bold text-white">{tourBadge}</span>
+              <span className="rounded-full bg-terracota-500 px-2.5 py-1 text-xs font-bold text-white">{tourBadge}</span>
             )}
-            <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-stone-700">{posicion}</span>
+            <span className="rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-stone-700">{posicion}</span>
           </div>
-          <h2 id="detalle-titulo" tabIndex={-1} className="text-xl font-extrabold leading-tight text-white drop-shadow-md">
+          <h2 id="detalle-titulo" tabIndex={-1} className="text-2xl font-extrabold leading-tight text-white drop-shadow-md">
             {poi.nombre}
           </h2>
-          {poi.nombreQuechua && <p className="text-sm italic text-white/90">«{poi.nombreQuechua}» · quechua</p>}
+          {poi.nombreQuechua && <p className="text-base italic text-white/90">«{poi.nombreQuechua}» · quechua</p>}
         </div>
       </div>
 
-      <p className="flex items-center gap-4 border-b border-white/5 bg-white/[.02] px-4 py-2.5 text-xs font-semibold text-slate-300">
+      <p className="flex items-center gap-4 border-b border-white/5 bg-white/[.02] px-4 py-3 text-sm font-semibold text-slate-200">
         <span className="flex items-center gap-1">
           <MapPin className="h-3.5 w-3.5 text-sky-400" aria-hidden="true" />
           {poi.distrito} · {poi.provincia}
@@ -110,7 +104,7 @@ export default function SidebarDetail({ poi, posicion, tourBadge, onClose, onPre
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-bold btn-transition ${
+            className={`flex min-h-[48px] flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-sm font-bold btn-transition ${
               tab === t.id ? "bg-white text-[#0c141f] shadow" : "text-slate-400 hover:bg-white/5 hover:text-white"
             }`}
           >
@@ -120,10 +114,10 @@ export default function SidebarDetail({ poi, posicion, tourBadge, onClose, onPre
         ))}
       </div>
 
-      <div className="apurimac-scroll min-h-0 flex-1 overflow-y-auto bg-transparent px-4 py-4 text-[15px] font-light leading-relaxed text-slate-300" role="tabpanel">
+      <div className="apurimac-scroll min-h-0 flex-1 overflow-y-auto bg-transparent px-4 py-4 text-base font-normal leading-relaxed text-slate-200" role="tabpanel">
         {tab === "historia" && (
           <div className="space-y-3">
-            <p className="flex items-start gap-2 rounded-xl border border-white/5 bg-white/5 p-3 text-sm italic text-slate-300">
+            <p className="flex items-start gap-2 rounded-xl border border-white/5 bg-white/5 p-3 text-base italic text-slate-200">
               <BookOpenText className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" aria-hidden="true" />
               {poi.descripcionCorta}
             </p>

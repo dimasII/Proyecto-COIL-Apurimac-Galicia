@@ -14,7 +14,7 @@ export default function BlogPage() {
         <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
           <Mountain className="h-3.5 w-3.5" aria-hidden="true" /> Diario del proyecto
         </p>
-        <h1 className="mt-3 font-display text-3xl font-black uppercase text-white md:text-4xl">Blog COIL</h1>
+        <h1 className="mt-3 font-display text-2xl font-extrabold uppercase text-white sm:text-3xl md:text-4xl">Blog COIL</h1>
         <p className="mt-2 max-w-2xl text-[15px] font-light text-slate-400">
           Notas de intercambio entre Apurímac y Galicia. El mapa cultural sigue en la{" "}
           <a href="/#explorar" className="font-bold text-sky-300 hover:underline">

@@ -1,9 +1,3 @@
-/**
- * Contorno referencial del departamento de Apurímac (simplificado con fines
- * educativos — no es un límite oficial). Sirve para resaltar la región en el
- * mapa y atenuar visualmente todo lo que queda fuera.
- * Orden GeoJSON: [longitud, latitud].
- */
 export const APURIMAC_POLYGON: Array<[number, number]> = [
   [-73.95, -14.15],
   [-73.75, -14.55],
@@ -22,7 +16,6 @@ export const APURIMAC_POLYGON: Array<[number, number]> = [
   [-73.95, -14.15],
 ];
 
-/** Encuadre ajustado al contorno (SW → NE). */
 export const APURIMAC_FIT_BOUNDS: [[number, number], [number, number]] = [
   [-74.05, -14.8],
   [-71.6, -13.05],

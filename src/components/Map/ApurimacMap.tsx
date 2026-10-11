@@ -158,15 +158,12 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
             maxzoom: 14,
           });
         } catch {
-          /* fuente DEM no disponible */
         }
       }
       try {
         map.setTerrain(terrenoRef.current ? { source: SRC_DEM, exaggeration: 1.4 } : null);
       } catch {
-        /* estilo sin soporte de terreno */
       }
-      // Cielo con relieve cuando el terreno está activo.
       if (!map.getLayer("cielo-apurimac")) {
         try {
           map.addLayer({
@@ -188,11 +185,9 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
             },
           });
         } catch {
-          /* estilos satélite ignoran el cielo */
         }
       }
 
-      // 2) Máscara: oscurece todo lo que NO es Apurímac (efecto "solo la región").
       if (!map.getSource(SRC_MASK)) {
         map.addSource(SRC_MASK, { type: "geojson", data: geoMascara() as unknown as GeoJSON.FeatureCollection });
       }
@@ -205,7 +200,6 @@ export default function ApurimacMap({ pois, selectedId, onSelect, mapRef }: Prop
         });
       }
 
-      // 3) Relleno + borde luminoso del contorno regional.
       if (!map.getSource(SRC_REGION)) {
         map.addSource(SRC_REGION, { type: "geojson", data: geoRegion() as unknown as GeoJSON.FeatureCollection });
       }

@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import Image from "next/image";
+import FotoPortada from "./FotoPortada";
 import { ArrowRight, MapPin, Mountain, Navigation } from "lucide-react";
 import type { POI } from "@/types";
 import { CATEGORIA_META } from "@/types";
@@ -32,12 +32,11 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
       style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
     >
       <div className="relative aspect-[16/10] shrink-0 overflow-hidden">
-        <Image
-          src={poi.imagenUrl}
+        <FotoPortada
+          id={poi.id}
+          fallback={poi.imagenUrl}
           alt={`Fotografía de ${poi.nombre}, distrito de ${poi.distrito}, provincia de ${poi.provincia}`}
-          fill
           sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 400px"
-          loading="lazy"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" aria-hidden="true" />
@@ -53,8 +52,8 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
           )}
         </div>
         <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="text-[17px] font-extrabold leading-snug text-white drop-shadow-md">{poi.nombre}</h3>
-          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs font-semibold text-white drop-shadow">
+          <h3 className="text-lg font-extrabold leading-snug text-white drop-shadow-md">{poi.nombre}</h3>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] font-semibold text-white drop-shadow">
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-3 w-3" aria-hidden="true" />
               {poi.distrito} · {poi.provincia}
@@ -67,8 +66,8 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
         </div>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="line-clamp-2 text-sm font-light leading-relaxed text-slate-400">{poi.descripcionCorta}</p>
-        <p className="mt-2 truncate text-xs text-slate-500">
+        <p className="line-clamp-2 text-[15px] font-normal leading-relaxed text-slate-300">{poi.descripcionCorta}</p>
+        <p className="mt-2 truncate text-[13px] text-slate-400">
           Sabor local: <span className="font-semibold text-slate-300">{poi.gastronomiaLocal[0]?.nombre ?? "Tradición viva"}</span>
         </p>
         <div className="mt-3 flex items-center gap-2">
@@ -77,7 +76,7 @@ const PlaceCard = forwardRef<HTMLElement, Props>(function PlaceCard(
             onClick={() => onSelect(poi)}
             aria-pressed={activo}
             aria-label={`Abrir ficha de ${poi.nombre}`}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-bold text-[#0c141f] btn-transition hover:bg-sky-400 hover:text-white"
+            className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-1.5 rounded-xl bg-white px-3 py-2 text-[15px] font-bold text-[#0c141f] btn-transition hover:bg-sky-400 hover:text-white"
           >
             Abrir ficha
             <ArrowRight className="h-4 w-4" aria-hidden="true" />

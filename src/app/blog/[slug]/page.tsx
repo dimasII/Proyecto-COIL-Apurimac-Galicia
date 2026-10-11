@@ -39,7 +39,7 @@ export default function PostPage({ params }: PostPageProps) {
               {post.author}
             </span>
           </p>
-          <h1 className="mt-3 font-display text-3xl font-black uppercase leading-tight text-white md:text-4xl">{post.title}</h1>
+          <h1 className="mt-3 font-display text-2xl font-extrabold uppercase leading-tight text-white sm:text-3xl md:text-4xl">{post.title}</h1>
           <p className="mt-2 text-[15px] font-light italic leading-relaxed text-slate-400">{post.excerpt}</p>
         </header>
 

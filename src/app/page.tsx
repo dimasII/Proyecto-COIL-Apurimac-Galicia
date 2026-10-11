@@ -1,10 +1,6 @@
 "use client";
 
-/**
- * APURÍMAC INMERSIVO — CamiñAndes (UNAMBA × USC).
- * Atlas turístico editorial: mapa + lista conectados.
- */
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import type mapboxgl from "mapbox-gl";
 import {
@@ -14,6 +10,8 @@ import {
   Landmark,
   List,
   Map as MapIcon,
+  Maximize2,
+  Minimize2,
   Mountain,
   Play,
   Square,
@@ -56,8 +54,19 @@ export default function Home() {
   const [tourIndex, setTourIndex] = useState<number | null>(null);
   const [explorados, setExplorados] = useState<Set<string>>(new Set());
   const [vista, setVista] = useState<VistaMovil>("mapa");
+  const [mapaGrande, setMapaGrande] = useState(false);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const tarjetasRef = useRef<Record<string, HTMLElement | null>>({});
+
+  // Salir del mapa grande con Escape (UX 25-50: salida clara)
+  useEffect(() => {
+    if (!mapaGrande) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMapaGrande(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mapaGrande]);
 
   const visibles = useMemo(() => {
     const q = filtros.busqueda.trim().toLowerCase();
@@ -143,41 +152,56 @@ export default function Home() {
   const provinciasUnicas = new Set(POIS.map((p) => p.provincia)).size;
 
   return (
-    <div className="bg-[#05090e] text-slate-50">
+    <div className="overflow-x-clip bg-[#05090e] text-slate-50">
       <div id="inicio" className="scroll-mt-16">
         <HeroCinematic />
       </div>
 
       {/* Cifras del proyecto sobre el video */}
-      <section aria-label="Cifras del proyecto" className="relative z-10 mx-auto -mt-10 max-w-6xl px-4">
-        <dl className="grid grid-cols-3 gap-2.5" aria-label="Cifras del proyecto">
+      <section aria-label="Cifras del proyecto" className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <dl className="grid grid-cols-3 gap-2.5 sm:gap-4" aria-label="Cifras del proyecto">
           {[
             { n: `${POIS.length}`, l: "Lugares por descubrir" },
             { n: `${provinciasUnicas}`, l: "Provincias representadas" },
             { n: `${RUTA_CULTURAL.length}`, l: "Paradas en la Ruta" },
           ].map((s) => (
-            <div key={s.l} className="glass-card rounded-2xl p-3 text-center">
-              <dt className="order-2 mt-1 block text-[11px] uppercase tracking-wider text-slate-400">{s.l}</dt>
-              <dd className="order-1 font-display text-xl font-black text-white md:text-2xl">{s.n}</dd>
+            <div key={s.l} className="glass-card rounded-2xl p-3 text-center sm:p-5">
+              <dt className="order-2 mt-1.5 block text-[11px] font-semibold uppercase leading-snug tracking-wider text-slate-300 sm:text-xs">{s.l}</dt>
+              <dd className="order-1 font-display text-2xl font-black text-white sm:text-3xl md:text-4xl">{s.n}</dd>
             </div>
           ))}
         </dl>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-[13px] font-light leading-relaxed text-slate-300 sm:text-sm">
+          El atlas reúne {POIS.length} lugares; {RUTA_CULTURAL.length} de ellos forman parte del recorrido guiado de la Ruta Cultural.
+        </p>
       </section>
 
       {/* ═══ ATLAS: MAPA + LISTA ═══ */}
-      <section id="explorar" aria-labelledby="titulo-explorar" className="relative z-10 scroll-mt-16">
-        <div className="mx-auto max-w-6xl px-4 pb-4 pt-10">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-400">Atlas interactivo</p>
-          <h2 id="titulo-explorar" className="mt-1 font-display text-2xl font-black uppercase text-white md:text-3xl">
-            Mapa y lugares, juntos
-          </h2>
-          <p className="mt-1 max-w-2xl text-[15px] font-light text-slate-400">
-            El mapa está centrado solo en Apurímac: usa el panel «Capas» para cambiar entre Relieve, Satélite y Claro,
-            activar el terreno 3D, ver la altitud de cada lugar e inclinar la vista para apreciar el tamaño de las montañas.
+      <section id="explorar" aria-labelledby="titulo-explorar" className="relative z-10 scroll-mt-16 border-t border-white/5">
+        <div className="mx-auto w-full max-w-7xl px-4 pb-4 pt-10 sm:px-6 md:pt-14">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sky-400">Atlas interactivo · empieza por el mapa</p>
+          <div className="mt-1.5 flex flex-wrap items-end justify-between gap-3">
+            <h2 id="titulo-explorar" className="font-display text-3xl font-extrabold uppercase leading-tight text-white md:text-4xl">
+              Explora Apurímac en el mapa
+            </h2>
+            <button
+              type="button"
+              onClick={() => setMapaGrande((v) => !v)}
+              aria-expanded={mapaGrande}
+              aria-controls="panel-mapa"
+              className="hidden min-h-[48px] items-center gap-2 rounded-full border border-sky-400/30 bg-sky-400/10 px-5 text-sm font-bold text-sky-200 btn-transition hover:bg-sky-400/20 lg:inline-flex"
+            >
+              {mapaGrande ? <Minimize2 className="h-4 w-4" aria-hidden="true" /> : <Maximize2 className="h-4 w-4" aria-hidden="true" />}
+              {mapaGrande ? "Ver mapa + lista" : "Hacer el mapa más grande"}
+            </button>
+          </div>
+          <p className="mt-2 max-w-3xl text-base font-light leading-relaxed text-slate-200 md:text-lg">
+            Toca un punto del mapa para abrir su ficha con historia, sabores y leyenda.
+            {` ${POIS.length} lugares · 7 paradas en la Ruta Cultural.`}
           </p>
         </div>
 
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
           <FilterBar filtros={filtros} onChange={setFiltros} totalVisibles={visibles.length} totalPOIs={POIS.length} />
 
           {/* Alternador móvil Mapa / Lista */}
@@ -204,12 +228,12 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-3 grid gap-4 lg:grid-cols-[400px_minmax(0,1fr)]">
+          <div className={`mt-3 grid gap-4 ${mapaGrande ? "lg:grid-cols-1" : "lg:grid-cols-[360px_minmax(0,1fr)]"}`}>
             {/* ── Panel lista (escritorio siempre visible; móvil según pestaña) ── */}
-            <div className={`${vista === "lista" ? "block" : "hidden"} lg:block`}>
+            <div className={mapaGrande ? "hidden" : `${vista === "lista" ? "block" : "hidden"} order-2 lg:order-1 lg:block`}>
               <div
                 id="lugares"
-                className="apurimac-scroll max-h-[70vh] scroll-mt-24 space-y-3 overflow-y-auto rounded-2xl border border-white/10 bg-[#0c141f]/60 p-3 backdrop-blur-md lg:max-h-[78vh]"
+                className="apurimac-scroll max-h-[70vh] scroll-mt-24 space-y-3 overflow-y-auto rounded-2xl border border-white/10 bg-[#0c141f]/60 p-3 backdrop-blur-md lg:max-h-[82vh]"
                 role="region"
                 aria-label={`Lista de lugares (${visibles.length} resultados)`}
                 aria-live="polite"
@@ -269,12 +293,26 @@ export default function Home() {
             </div>
 
             {/* ── Panel mapa (escritorio sticky; móvil según pestaña) ── */}
-            <div className={`${vista === "mapa" ? "block" : "hidden"} lg:block`}>
-              <div className="relative h-[68vh] min-h-[480px] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl lg:sticky lg:top-20 lg:h-[78vh]">
+            <div className={`${vista === "mapa" ? "block" : "hidden"} order-1 lg:order-2 lg:block`}>
+              <div id="panel-mapa" className={`relative w-full overflow-hidden rounded-2xl border-2 border-sky-400/20 shadow-2xl ${mapaGrande ? "h-[86vh] min-h-[560px]" : "h-[62vh] min-h-[420px] sm:h-[68vh] sm:min-h-[480px] lg:sticky lg:top-20 lg:h-[82vh]"}`}>
                 <ApurimacMap pois={visibles} selectedId={selected?.id ?? null} onSelect={elegirDesdeMapa} mapRef={mapRef} tourIndex={tourIndex} />
 
+                {/* Botón ampliar / reducir sobre el mapa */}
+                <button
+                  type="button"
+                  onClick={() => setMapaGrande((v) => !v)}
+                  aria-expanded={mapaGrande}
+                  aria-controls="panel-mapa"
+                  aria-label={mapaGrande ? "Reducir el mapa" : "Ampliar el mapa"}
+                  title={mapaGrande ? "Reducir el mapa" : "Ampliar el mapa"}
+                  className="absolute right-3 top-3 z-20 inline-flex min-h-[48px] min-w-[48px] items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-[#0c141f]/85 px-3 text-sm font-bold text-white shadow-xl backdrop-blur btn-transition hover:bg-[#0c141f]"
+                >
+                  {mapaGrande ? <Minimize2 className="h-5 w-5" aria-hidden="true" /> : <Maximize2 className="h-5 w-5" aria-hidden="true" />}
+                  <span className="hidden sm:inline">{mapaGrande ? "Reducir" : "Ampliar"}</span>
+                </button>
+
                 {selected && (
-                  <div className="absolute bottom-3 left-3 right-3 z-10 md:bottom-4 md:left-auto md:right-4 md:top-4 md:w-[360px]">
+                  <div className="absolute bottom-3 left-3 right-3 z-10 md:bottom-4 md:left-auto md:right-4 md:top-16 md:w-[400px]">
                     <SidebarDetail
                       key={selected.id}
                       poi={selected}
@@ -313,8 +351,8 @@ export default function Home() {
                 )}
 
                 {!selected && (
-                  <p className="absolute bottom-3 left-1/2 z-10 w-max max-w-[94vw] -translate-x-1/2 rounded-full border border-white/10 bg-[#0c141f]/70 px-4 py-2 text-xs text-slate-200 backdrop-blur" role="status">
-                    {visibles.length} lugares · elige un punto para ver su ficha
+                  <p className="absolute bottom-3 left-1/2 z-10 w-max max-w-[94vw] -translate-x-1/2 rounded-full border border-white/10 bg-[#0c141f]/80 px-4 py-2.5 text-sm font-semibold text-slate-100 backdrop-blur" role="status">
+                    {visibles.length} lugares · toca un punto para ver su ficha
                   </p>
                 )}
               </div>
@@ -324,15 +362,16 @@ export default function Home() {
       </section>
 
       {/* ═══ RUTA CULTURAL ═══ */}
-      <section id="ruta-cultural" aria-labelledby="titulo-ruta" className="relative z-10 scroll-mt-16 border-t border-white/5 bg-[#0c141f]/30">
-        <div className="mx-auto max-w-6xl px-4 py-12 md:py-16">
+      <section id="ruta-cultural" aria-labelledby="titulo-ruta" className="relative z-10 mt-10 scroll-mt-16 border-t border-white/5 bg-[#0c141f]/30">
+        <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 md:py-16">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-400">Experiencia guiada · 7 paradas</p>
-          <h2 id="titulo-ruta" className="mt-1 font-display text-2xl font-black uppercase text-white md:text-3xl">
+          <h2 id="titulo-ruta" className="mt-1.5 font-display text-2xl font-black uppercase leading-tight text-white md:text-3xl">
             Tu recorrido por Apurímac
           </h2>
-          <p className="mt-2 max-w-2xl text-[15px] font-light leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-2xl text-[15px] font-light leading-relaxed text-slate-300">
             Del monolito de Saywite a la pirámide de Sóndor, pasando por la huatia, las termas y el cañón:
-            una narrativa que une agua, tierra y memoria quechua. Marca tu progreso parada por parada.
+            una narrativa que une agua, tierra y memoria quechua. Son 7 paradas seleccionadas de los 12 lugares del atlas.
+            Marca tu progreso parada por parada.
           </p>
           <div className="mt-6">
             <RutaCultural explorados={explorados} onSelect={elegirPorId} onIniciar={iniciarTour} />
@@ -341,8 +380,8 @@ export default function Home() {
       </section>
 
       {/* ═══ ACERCA / AYUDA ═══ */}
-      <section aria-labelledby="titulo-acerca" className="relative z-10 mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <div className="grid gap-4 md:grid-cols-3">
+      <section aria-labelledby="titulo-acerca" className="relative z-10 mx-auto w-full max-w-6xl border-t border-white/5 px-4 py-12 sm:px-6 md:py-16">
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
           {[
             { icon: <BookOpenText className="h-5 w-5" aria-hidden="true" />, t: "Para docentes", d: "Cada lugar reúne historia, gastronomía y leyenda con etiquetas y altitudes. Úsalo como aula viva: pide a tus estudiantes comparar dos paradas de la Ruta." },
             { icon: <Users className="h-5 w-5" aria-hidden="true" />, t: "Para estudiantes", d: "Empieza por Explorar el mapa, abre un lugar y sigue con Siguiente. Anota tres palabras en quechua que descubras en el recorrido." },

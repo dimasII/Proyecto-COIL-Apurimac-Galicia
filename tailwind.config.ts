@@ -80,8 +80,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["'Syne'", "'Fraunces'", "Georgia", "serif"],
-        sans: ["'Plus Jakarta Sans'", "'Inter'", "system-ui", "sans-serif"],
+        display: ["Inter", "system-ui", "-apple-system", "'Segoe UI'", "Roboto", "Arial", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "'Segoe UI'", "Roboto", "'Helvetica Neue'", "Arial", "sans-serif"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(26,18,7,.08), 0 8px 24px -12px rgba(26,18,7,.25)",

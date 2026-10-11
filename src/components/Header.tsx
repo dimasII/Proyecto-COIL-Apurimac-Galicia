@@ -19,7 +19,6 @@ export default function Header() {
   const [active, setActive] = useState("inicio");
   const pathname = usePathname();
 
-  // Observa secciones visibles para estado activo (Nielsen #1).
   useEffect(() => {
     if (pathname !== "/") {
       setActive(pathname.includes("about") ? "about" : pathname.includes("blog") ? "blog" : "");

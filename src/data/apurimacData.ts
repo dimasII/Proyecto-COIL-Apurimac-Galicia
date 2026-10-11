@@ -1,10 +1,4 @@
-/**
- * Base de datos local y tipada de Apurímac.
- * Coordenadas aproximadas verificadas contra cartografía pública
- * (I ruana de ajuste fino: úsala como referencia educativa).
- */
 import type { POI, Provincia } from "@/types";
-
 export const PROVINCIAS: Provincia[] = [
   {
     nombre: "Abancay",
@@ -457,8 +451,6 @@ export const POIS: POI[] = [
     etiquetas: ["tinkuy", "quechua", "carnaval", "danza", "ayllu"],
   },
 ];
-
-/** Subconjunto ordenado para el "Tour Virtual Guiado". */
 export const RUTA_CULTURAL_IDS = [
   "saywite",
   "huatia-fest",

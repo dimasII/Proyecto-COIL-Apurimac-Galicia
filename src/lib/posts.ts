@@ -4,9 +4,7 @@ export interface Post {
   excerpt: string;
   date: string;
   author: string;
-  /** Etiqueta editorial (no inventa contenido turístico). */
   category: string;
-  /** Reutiliza fotografías ya usadas en el atlas (mismo banco de imágenes). */
   cover: string;
   coverAlt: string;
   content: string;

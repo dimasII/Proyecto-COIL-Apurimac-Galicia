@@ -32,7 +32,7 @@ export default function AboutPage() {
           <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300">
             <Mountain className="h-3.5 w-3.5" aria-hidden="true" /> CamiñAndes · UNAMBA × USC
           </p>
-          <h1 className="mt-3 font-display text-3xl font-black uppercase text-white md:text-5xl">Acerca del proyecto</h1>
+          <h1 className="mt-3 font-display text-2xl font-extrabold uppercase text-white sm:text-3xl md:text-5xl">Acerca del proyecto</h1>
           <p className="mt-3 max-w-2xl text-[15px] font-light leading-relaxed text-slate-300 md:text-base">
             <strong className="text-white">Apurímac Inmersivo</strong> es una iniciativa de colaboración
             internacional (COIL) entre la Universidad Nacional Micaela Bastidas de Apurímac y la

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import FotoPortada from "./FotoPortada";
 import { ArrowRight, CheckCircle2, Circle, MapPin, Play } from "lucide-react";
 import { RUTA_CULTURAL } from "@/data/apurimacData";
 import { CATEGORIA_META } from "@/types";
@@ -57,7 +57,7 @@ export default function RutaCultural({ explorados, onSelect, onIniciar }: Props)
               <div className={`glass-card flex-1 rounded-andina p-3 card-lift md:p-4 ${visto ? "border-sky-400/30" : ""}`}>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <div className="relative h-28 w-full shrink-0 overflow-hidden rounded-xl sm:w-40">
-                    <Image src={p.imagenUrl} alt={`Fotografía de ${p.nombre}`} fill sizes="160px" loading="lazy" className="object-cover" />
+                    <FotoPortada id={p.id} fallback={p.imagenUrl} alt={`Fotografía de ${p.nombre}`} sizes="160px" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-sky-300">

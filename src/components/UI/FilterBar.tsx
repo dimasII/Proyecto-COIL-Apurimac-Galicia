@@ -43,7 +43,7 @@ export default function FilterBar({ filtros, onChange, totalVisibles, totalPOIs 
           value={filtros.busqueda}
           onChange={(e) => onChange({ ...filtros, busqueda: e.target.value })}
           placeholder="Buscar lugares, Huatia, Saywite, laguna…"
-          className="w-full rounded-xl border border-white/10 bg-[#0c141f]/60 py-2.5 pl-9 pr-9 text-sm text-white backdrop-blur-md placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400 [&::-webkit-search-cancel-button]:hidden"
+          className="w-full rounded-xl border border-white/10 bg-[#0c141f]/60 py-2.5 pl-9 pr-9 text-base text-white backdrop-blur-md placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400 sm:text-sm [&::-webkit-search-cancel-button]:hidden"
         />
         {filtros.busqueda && (
           <button
@@ -92,7 +92,7 @@ export default function FilterBar({ filtros, onChange, totalVisibles, totalPOIs 
           id="filtro-provincia"
           value={filtros.provincia}
           onChange={(e) => onChange({ ...filtros, provincia: e.target.value })}
-          className="min-h-[40px] flex-1 cursor-pointer rounded-xl border border-white/10 bg-[#0c141f]/60 px-3 py-2 text-xs font-medium text-slate-200 focus:border-sky-400 focus:outline-none [&>option]:text-stone-900"
+          className="min-h-[40px] flex-1 cursor-pointer rounded-xl border border-white/10 bg-[#0c141f]/60 px-3 py-2 text-base font-medium text-slate-200 focus:border-sky-400 focus:outline-none sm:text-xs [&>option]:text-stone-900"
         >
           <option value="todas">Todas las provincias</option>
           {PROVINCIAS.map((p) => (
